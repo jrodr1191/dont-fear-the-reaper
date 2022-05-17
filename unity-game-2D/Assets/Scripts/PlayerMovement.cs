@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] Rigidbody2D rb2d;
+    Rigidbody2D rb2d;
+    Animator animator;
 
     [SerializeField] float moveSpeed;
     [SerializeField] float jumpForce;
@@ -13,30 +14,48 @@ public class PlayerMovement : MonoBehaviour
 
     bool jumpInput;
     float moveHorizontal;
-    float moveVertical;
     bool jumpInputReleased;
 
-
-
-    // Start is called before the first frame update
     void Start()
     {
         rb2d = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
     }
 
-    // Update is called once per frame
     void Update()
     {
+        moveHorizontal = Input.GetAxisRaw("Horizontal");
+
         Jump();
+        FlipSprite();
+        Run();
+    }
+
+    void FixedUpdate()
+    {
+
+    }
+
+    void Run()
+    {
+        rb2d.velocity = new Vector2(moveHorizontal * moveSpeed, rb2d.velocity.y);
+        bool playerHasHorizontalSpeed = Mathf.Abs(rb2d.velocity.x) > Mathf.Epsilon;
+        animator.SetBool("isRunning", playerHasHorizontalSpeed);
+    }
+
+    void FlipSprite()
+    {
+        bool playerHasHorizontalSpeed = Mathf.Abs(rb2d.velocity.x) > Mathf.Epsilon;
+        if (playerHasHorizontalSpeed)
+        {
+            transform.localScale = new Vector2(Mathf.Sign(rb2d.velocity.x), 1f);
+        }
     }
 
     void Jump()
     {
-        moveHorizontal = Input.GetAxisRaw("Horizontal");
         jumpInput = Input.GetKeyDown(KeyCode.W);
         jumpInputReleased = Input.GetKeyUp(KeyCode.W);
-
-        rb2d.velocity = new Vector2(moveHorizontal * moveSpeed, rb2d.velocity.y);
 
         if (jumpInput && isGrounded())
         {
@@ -47,12 +66,6 @@ public class PlayerMovement : MonoBehaviour
         {
             rb2d.velocity = new Vector2(rb2d.velocity.x, 0);
         }
-        /*
-        if(moveHorizontal != 0)
-        {
-            transform.localScale = new Vector3(Mathf.Sign(moveHorizontal), 1, 1);
-        }
-        */
     }
 
     bool isGrounded()
