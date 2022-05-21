@@ -135,8 +135,8 @@ public class Enemy : MonoBehaviour
         Destroy(gameObject, 5f);
         aliveAnim.SetBool("isDead", true);
 
-        GetComponentInChildren<BoxCollider2D>().enabled = false;
-        this.enabled = false;
+        //GetComponentInChildren<BoxCollider2D>().enabled = false;
+        //this.enabled = false;
     }
 
     void UpdateDead()

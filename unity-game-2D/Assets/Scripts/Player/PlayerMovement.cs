@@ -6,6 +6,7 @@ public class PlayerMovement : MonoBehaviour
 {
     Rigidbody2D rb2d;
     Animator animator;
+    public GameObject player;
 
     [Header("Move")]
     [SerializeField] float moveSpeed;
@@ -46,18 +47,21 @@ public class PlayerMovement : MonoBehaviour
     float knockbackStartTime;
     [SerializeField] float knockbackDuration;
     [SerializeField] Vector2 knockbackSpeed;
+    int facingDirection;
 
     [SerializeField] Transform groundCheck;
     [SerializeField] Transform wallCheck;
     public Transform attackPoint;
     [SerializeField] LayerMask enemyLayers;
     public LayerMask groundLayer;
+    private PlayerStats playerStats;
 
     void Start()
     {
         rb2d = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         gravityStore = rb2d.gravityScale;
+        playerStats = player.GetComponent<PlayerStats>();
     }
 
     void Update()
@@ -110,7 +114,7 @@ public class PlayerMovement : MonoBehaviour
         {
             int direction;
 
-            //Damage player here using attackDetails[0]
+            playerStats.DecreaseHealth(attackDetails[0]);
 
             if (attackDetails[1] < transform.position.x)
             {
@@ -273,6 +277,11 @@ public class PlayerMovement : MonoBehaviour
             knockback = false;
             rb2d.velocity = new Vector2(0.0f, rb2d.velocity.y);
         }
+    }
+
+    public int GetFacingDirection()
+    {
+        return facingDirection;
     }
 
     bool isGrounded()
