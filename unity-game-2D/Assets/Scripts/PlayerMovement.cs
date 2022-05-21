@@ -16,13 +16,15 @@ public class PlayerMovement : MonoBehaviour
     bool jumpInput;
     bool jumpInputReleased;
 
-    [Header("Dash")]
+    [Header("Dash")]  
     [SerializeField] float startDashTime;
     [SerializeField] float dashForce;
     [SerializeField] float dashCooldown = 2f;
+    float lastImageXpos;
     float dashCounter = 0f;
     float dashDirection;
     float currentDashTime;
+    [SerializeField] float distanceBetweenImages;
     bool isDashing;
 
     [Header("Wall Jump")]
@@ -36,9 +38,20 @@ public class PlayerMovement : MonoBehaviour
     bool wallJumping;
     bool wallSliding;
 
+    [Header("Attack")]
+    public float attackRange = 0.5f;
+    public int attackDamage = 10;
+    float[] attackDetails = new float[2];
+    bool knockback;
+    float knockbackStartTime;
+    [SerializeField] float knockbackDuration;
+    [SerializeField] Vector2 knockbackSpeed;
+
     [SerializeField] Transform groundCheck;
     [SerializeField] Transform wallCheck;
-    [SerializeField] LayerMask groundLayer;
+    public Transform attackPoint;
+    [SerializeField] LayerMask enemyLayers;
+    public LayerMask groundLayer;
 
     void Start()
     {
@@ -57,6 +70,8 @@ public class PlayerMovement : MonoBehaviour
         Dash();
         WallSlide();
         WallJump();
+        Combat();
+        CheckKnockback();
 
         animator.SetFloat("yVelocity", rb2d.velocity.y);
     }
@@ -66,11 +81,66 @@ public class PlayerMovement : MonoBehaviour
         GroundCheck();
     }
 
+    void Combat()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Attack();
+        }
+    }
+
+    void Attack()
+    {
+        animator.SetTrigger("Attack");
+
+        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
+
+        attackDetails[0] = attackDamage;
+        attackDetails[1] = transform.position.x;
+
+        foreach (Collider2D enemy in hitEnemies)
+        {
+            enemy.transform.parent.SendMessage("Damage", attackDetails);
+        }
+    }
+
+    void Damage(float[] attackDetails)
+    {
+        if (!isDashing)
+        {
+            int direction;
+
+            //Damage player here using attackDetails[0]
+
+            if (attackDetails[1] < transform.position.x)
+            {
+                direction = 1;
+            }
+            else
+            {
+                direction = -1;
+            }
+
+            Knockback(direction);
+        }
+    }
+    
+    private void OnDrawGizmosSelected()
+    {
+        if (attackPoint == null)
+            return;
+
+        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
+    }
+
     void Run()
     {
-        rb2d.velocity = new Vector2(moveHorizontal * moveSpeed, rb2d.velocity.y);
-        bool playerHasHorizontalSpeed = Mathf.Abs(rb2d.velocity.x) > Mathf.Epsilon;
-        animator.SetBool("isRunning", playerHasHorizontalSpeed);
+        if (!knockback)
+        {
+            rb2d.velocity = new Vector2(moveHorizontal * moveSpeed, rb2d.velocity.y);
+            bool playerHasHorizontalSpeed = Mathf.Abs(rb2d.velocity.x) > Mathf.Epsilon;
+            animator.SetBool("isRunning", playerHasHorizontalSpeed);
+        }
     }
 
     void Dash()
@@ -84,6 +154,8 @@ public class PlayerMovement : MonoBehaviour
                 rb2d.velocity = Vector2.zero;
                 dashDirection = (int)moveHorizontal;
                 dashCounter = Time.time + dashCooldown;
+                PlayerAfterImagePool.Instance.GetFromPool();
+                lastImageXpos = dashDirection;
             }
         }   
 
@@ -91,6 +163,11 @@ public class PlayerMovement : MonoBehaviour
         {
             rb2d.velocity = transform.right * dashDirection * dashForce;
             currentDashTime -= Time.deltaTime;
+            if(Mathf.Abs(transform.position.x - lastImageXpos) > distanceBetweenImages)
+            {
+                PlayerAfterImagePool.Instance.GetFromPool();
+                lastImageXpos = dashDirection;
+            }
             if(currentDashTime <= 0)
             {
                 isDashing = false;
@@ -103,7 +180,7 @@ public class PlayerMovement : MonoBehaviour
     void FlipSprite()
     {
         bool playerHasHorizontalSpeed = Mathf.Abs(rb2d.velocity.x) > Mathf.Epsilon;
-        if (playerHasHorizontalSpeed)
+        if (playerHasHorizontalSpeed && !knockback)
         {
             transform.localScale = new Vector2(Mathf.Sign(rb2d.velocity.x), 1f);
         }
@@ -180,6 +257,22 @@ public class PlayerMovement : MonoBehaviour
     void SetJumpingToFalse()
     {
         wallJumping = false;
+    }
+
+    void Knockback(int direction)
+    {
+        knockback = true;
+        knockbackStartTime = Time.time;
+        rb2d.velocity = new Vector2(knockbackSpeed.x * direction, knockbackSpeed.y);
+    }
+
+    void CheckKnockback()
+    {
+        if(Time.time >= knockbackStartTime + knockbackDuration && knockback)
+        {
+            knockback = false;
+            rb2d.velocity = new Vector2(0.0f, rb2d.velocity.y);
+        }
     }
 
     bool isGrounded()
