@@ -647,6 +647,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9a8eb05d0662437199a5336c996589b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameOverScreen: {fileID: 1266517503}
   respawnPoint: {fileID: 238064334}
   player: {fileID: 3520991368538023308, guid: e08d7a748de5c43c6ac898e81fdb0216, type: 3}
   respawnTime: 5
@@ -1542,13 +1543,14 @@ GameObject:
   - component: {fileID: 1266517500}
   - component: {fileID: 1266517502}
   - component: {fileID: 1266517501}
+  - component: {fileID: 1266517503}
   m_Layer: 5
   m_Name: Death Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1266517500
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1609,6 +1611,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1266517499}
   m_CullTransparentMesh: 1
+--- !u!114 &1266517503
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1266517499}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fc1cd3796af04bb6b6249601334c87b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1298827741
 GameObject:
   m_ObjectHideFlags: 0
@@ -1775,6 +1789,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1335796777}
   m_CullTransparentMesh: 1
+--- !u!95 &1420742366 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 3520991368538023306, guid: e08d7a748de5c43c6ac898e81fdb0216, type: 3}
+  m_PrefabInstance: {fileID: 3520991368843006284}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1448955711
 GameObject:
   m_ObjectHideFlags: 0
@@ -2308,13 +2327,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1266517499}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
+      - m_Target: {fileID: 1266517503}
+        m_TargetAssemblyTypeName: GameOverScreen, Assembly-CSharp
+        m_MethodName: RestartButton
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -2696,6 +2715,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3520991368538023307, guid: e08d7a748de5c43c6ac898e81fdb0216, type: 3}
+      propertyPath: animator
+      value: 
+      objectReference: {fileID: 1420742366}
     - target: {fileID: 3520991368538023308, guid: e08d7a748de5c43c6ac898e81fdb0216, type: 3}
       propertyPath: m_Name
       value: Player

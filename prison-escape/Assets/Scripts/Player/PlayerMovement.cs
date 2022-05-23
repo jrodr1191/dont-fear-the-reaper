@@ -308,11 +308,17 @@ public class PlayerMovement : MonoBehaviour
 
     void CheckKnockback()
     {
-        if(Time.time >= knockbackStartTime + knockbackDuration && knockback)
+        if (playerStats.isDead == false)
         {
-            knockback = false;
-            rb2d.velocity = new Vector2(0.0f, rb2d.velocity.y);
-            
+            if (Time.time >= knockbackStartTime + knockbackDuration && knockback)
+            {
+                knockback = false;
+                rb2d.velocity = new Vector2(0.0f, rb2d.velocity.y);
+            }
+        }
+        else
+        {
+            rb2d.velocity = new Vector2(0.0f, 0.0f);
         }
         animator.SetBool("isHurt", knockback);
     }

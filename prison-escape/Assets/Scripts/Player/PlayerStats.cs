@@ -6,6 +6,8 @@ public class PlayerStats : MonoBehaviour
 {
     [SerializeField] float maxHealth = 50f;
     float currentHealth;
+    [SerializeField] Animator animator;
+    public bool isDead;
 
     GameManager GM;
 
@@ -29,6 +31,9 @@ public class PlayerStats : MonoBehaviour
     {
         //GM.Respawn();
         GM.GameOver();
-        Destroy(gameObject);
+        //Destroy(gameObject);
+        animator.SetBool("isDead", true);
+        isDead = true;
     }
+
 }
