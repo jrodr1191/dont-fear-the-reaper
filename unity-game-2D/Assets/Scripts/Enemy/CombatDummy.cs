@@ -43,7 +43,6 @@ public class CombatDummy : MonoBehaviour
     void Damage(float[] details)
     {
         currentHealth -= details[0];
-        //playerFacingDirection = pc.GetFacingDirection();
 
         if(details[1] < aliveGO.transform.position.x)
         {

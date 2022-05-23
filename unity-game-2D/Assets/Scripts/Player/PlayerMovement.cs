@@ -7,6 +7,7 @@ public class PlayerMovement : MonoBehaviour
     Rigidbody2D rb2d;
     Animator animator;
     public GameObject player;
+    public SpriteRenderer sprite;
 
     [Header("Move")]
     [SerializeField] float moveSpeed;
@@ -27,6 +28,10 @@ public class PlayerMovement : MonoBehaviour
     float currentDashTime;
     [SerializeField] float distanceBetweenImages;
     bool isDashing;
+
+    [SerializeField] float slideSpeed = 5f;
+    float slideDirection;
+    bool isSliding;
 
     [Header("Wall Jump")]
     [SerializeField] float wallSlideSpeed = 7f;
@@ -55,6 +60,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] LayerMask enemyLayers;
     public LayerMask groundLayer;
     private PlayerStats playerStats;
+    [SerializeField] CapsuleCollider2D regularCollider;
+    [SerializeField] BoxCollider2D slide;
 
     void Start()
     {
@@ -76,6 +83,7 @@ public class PlayerMovement : MonoBehaviour
         WallJump();
         Combat();
         CheckKnockback();
+        Slide();
 
         animator.SetFloat("yVelocity", rb2d.velocity.y);
     }
@@ -151,7 +159,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if(Time.time > dashCounter)
         {
-            if (Input.GetKey(KeyCode.LeftShift))
+            if ((Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.A)) || (Input.GetKey(KeyCode.LeftShift) && Input.GetKey(KeyCode.D)))
             {
                 isDashing = true;
                 currentDashTime = startDashTime;
@@ -179,6 +187,41 @@ public class PlayerMovement : MonoBehaviour
         }
 
         animator.SetBool("isDashing", isDashing);
+    }
+
+    void Slide()
+    {
+        if((Input.GetKey(KeyCode.C) && Input.GetKey(KeyCode.A)) || (Input.GetKey(KeyCode.C) && Input.GetKey(KeyCode.D)))
+        {
+            isSliding = true;
+            animator.SetBool("isSliding", true);
+            regularCollider.enabled = false;
+            slide.enabled = true;
+            slideDirection = (int)moveHorizontal;
+            rb2d.velocity = transform.right * slideDirection * slideSpeed;
+            /*
+            if (!sprite.flipX)
+            {
+                rb2d.AddForce(Vector2.right * slideSpeed);
+            }
+            else
+            {
+                rb2d.AddForce(Vector2.left * slideSpeed);
+            }
+            */
+            StartCoroutine("stopSlide");
+        }
+        
+    }
+
+    IEnumerator stopSlide()
+    {
+        yield return new WaitForSeconds(0.4f);
+        animator.Play("Idling");
+        animator.SetBool("isSliding", false);
+        regularCollider.enabled = true;
+        slide.enabled = false;
+        isSliding = false;
     }
 
     void FlipSprite()
@@ -276,7 +319,9 @@ public class PlayerMovement : MonoBehaviour
         {
             knockback = false;
             rb2d.velocity = new Vector2(0.0f, rb2d.velocity.y);
+            
         }
+        animator.SetBool("isHurt", knockback);
     }
 
     public int GetFacingDirection()
